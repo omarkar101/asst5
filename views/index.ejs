@@ -36,10 +36,10 @@
           <td><%= task['description'] %></td>
           <td><%= task['isComplete'] ? 'Complete' : 'In progress' %></td>
           <td>
-            <form style="display: inline-block" onsubmit="deleteTask(`<%= task['_id'] %>`)">
+            <form id="deleteForm" style="display: inline-block" onsubmit="deleteTask(`<%= task['_id'] %>`)">
               <button type="submit" class="btn btn-danger">Delete</button>
             </form>
-            <form style="display: inline-block" onsubmit="toggleComplete(`<%= task['_id'] %>`)">
+            <form id="completeForm" style="display: inline-block" onsubmit="toggleComplete(`<%= task['_id'] %>`)">
               <button type="submit" class="btn btn-success">
                 <%= task['isComplete'] ? 'Complete' : 'Incomplete' %>
               </button>
@@ -53,21 +53,26 @@
     <script>
       const addTaskForm = document.getElementById("addTaskForm");
       const taskInput = document.getElementById("taskInput");
-      addTaskForm.addEventListener("submit", () => {
+      const completeForm = document.getElementById("completeForm");
+      const deleteForm = document.getElementById("deleteForm");
+      addTaskForm.addEventListener("submit", (e) => {
+        e.preventDefault();
         return axios({
           method: "post",
           url: "/task",
           data: {
             description: taskInput.value
           },
-        });
+        }).then(() => addTaskForm.submit());
       });
       async function deleteTask(taskId) {
-        return await axios.delete(`task/${taskId}`)
+        event.preventDefault();
+        return axios.delete(`task/${taskId}`).then(() => deleteForm.submit());
       }
 
       async function toggleComplete(taskId) {
-        return axios.put(`task/toggle/${taskId}`);
+        event.preventDefault();
+        return axios.put(`task/toggle/${taskId}`).then(() => completeForm.submit());
       }
 
     </script>
